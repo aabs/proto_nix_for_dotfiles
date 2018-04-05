@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-set -x GEN_ROOT /mnt/d/Synchronised/active_personal/Projects/by-technology/shell/prototypes/atomic_linkage/gens
+
+if test -z $GEN_ROOT
+    set -x GEN_ROOT $HOME/gens
+end
 
 function link -a original_file symlink
     ln -fs $original_file $symlink
@@ -119,6 +122,9 @@ end
 
 function stage_dotfile -a dotfile generation home_path -d "setup a dotfile link"
     ensure_default_link
+    if test -z home_path
+        set home_path $HOME
+    end
     set -l x (basename -s .symlink $dotfile)
     set -l new_home_dotfile "$home_path/.$x"
     set -l target_location (form_index_path $generation)
@@ -137,15 +143,18 @@ function stage_dotfile -a dotfile generation home_path -d "setup a dotfile link"
 end
 
 # search below for files matching a pattern and create a new generation from them transforming them to match dotfile format
-function stage_matching_files_as_dotfiles -a root gen -d "create a generation of new dotfiles for all matching sub-files"
+function stage_matching_files_as_dotfiles -a root gen home_path -d "create a generation of new dotfiles for all matching sub-files"
     set -l matching_files (find_all_candidate_symlinks "$root")
     for sl in $matching_files
-        stage_dotfile $sl $gen "$PWD/home"
+        stage_dotfile $sl $gen $home_path
     end
 end
 
 function make_original_file_indirect -a dotfile home_path -d "description"
     ensure_origin_generation
+    if test -z home_path
+        set home_path $HOME
+    end
     set -l origin_gen (get_origin_path)
     set -l x (basename -s .symlink $dotfile)
     set -l original_dotfile "$home_path/.$x"
@@ -158,21 +167,9 @@ function make_original_file_indirect -a dotfile home_path -d "description"
     end
 end
 
-function make_matching_originals_indirect -a root -d "move original symlink targets into a special area for preservation"
+function make_matching_originals_indirect -a root home_path -d "move original symlink targets into a special area for preservation"
     set -l matching_files (find_all_candidate_symlinks "$root")
     for sl in $matching_files
-        make_original_file_indirect $sl "$PWD/home"
+        make_original_file_indirect $sl $home_path
     end
-    
 end
-
-# THE PLAN
-# 0. create current generation link  generationC
-# 0. define links in root in terms of generationC
-# 1. Create a new folder GenerationX
-# 2. Create links in generationX to all files in origin dir
-# 4. redirect generationC to be a link to generationX
-# 5. now all links defined as $generationC/blah.ext should point to $generationX/blah.ext which is in turn a link to $origin/blah.ext
-
-
-# P1: final rollback destination is the origin, after which rollbacks stop changing things

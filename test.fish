@@ -2,7 +2,7 @@ function create_dotfiles_generation_1 -d "this is the function that sets up a ge
     set -l new_gen (create_new_gen)
     stage_link_to_file_in_index "$PWD/dotsv1/script.v1.sh" "script.sh" $new_gen
     stage_link_to_file_in_index "$PWD/dotsv1/script2.v1.sh" "script2.sh" $new_gen
-    stage_matching_files_as_dotfiles "$PWD/dotsv1" $new_gen
+    stage_matching_files_as_dotfiles "$PWD/dotsv1" $new_gen "$PWD/home"
     switch_default_to_new_generation $new_gen
 end
 
@@ -21,6 +21,7 @@ function create_dotfiles_generation_3 -d "this is the function that sets up a ge
 end
 
 function setup -d "description"
+    set -x GEN_ROOT "$PWD/gens"
     clean_up_gens
     create_links_from_home_to_default
 end
@@ -70,14 +71,14 @@ end
 function test3
     setup
     echo "echo hello, Im the original .bashrc" > "$PWD/home/.bashrc"
-    make_matching_originals_indirect "$PWD/dotsv1"
+    make_matching_originals_indirect "$PWD/dotsv1" "$PWD/home"
     tree -a -I .git
 end
 
 function test4
     setup
     echo "echo hello, Im the original .bashrc" > "$PWD/home/.bashrc"
-    make_matching_originals_indirect "$PWD/dotsv1"
+    make_matching_originals_indirect "$PWD/dotsv1" "$PWD/home"
     create_dotfiles_generation_1
     display_tree
 end
