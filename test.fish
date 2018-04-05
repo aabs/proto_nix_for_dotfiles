@@ -67,7 +67,6 @@ function test2
     display_tree
 end
 
-
 function test3
     setup
     echo "echo hello, Im the original .bashrc" > "$PWD/home/.bashrc"
@@ -90,3 +89,12 @@ function test5
     create_dotfiles_generation_1
     echo "after:"; cat "$PWD/home/.bashrc"
 end
+
+function test6
+    setup
+    echo "echo hello, Im the original .bashrc" > "$PWD/home/.bashrc"
+    create_dotfiles_generation_1
+    rollback_gen
+    display_tree
+end
+

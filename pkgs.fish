@@ -74,11 +74,29 @@ function get_current_generation_from_target_of_default_link
     readlink -m (get_default_path) | xargs basename | string split "-" | head -2 | tail -1
 end
 
+function switch_default_to_origin
+    set -l def_path (get_default_path)
+    set -l origin_path (get_origin_path)
+    rm -f $def_path
+    link $origin_path $def_path
+end
+
 function rollback_gen -d "switch to the previous generation"
+    ensure_default_link
+    ensure_origin_generation
+
+    if test (readlink (get_default_path)) = (get_origin_path)
+        echo "nowhere to roll back to"
+    end
+
     set -l cur_gen (get_current_gen)
     set -l new_gen (math $cur_gen - 1)
     if test -e (form_index_path $new_gen)
         switch_default_to_new_generation $new_gen
+    else
+        if test -d (get_origin_path)
+            switch_default_to_origin
+        end
     end
 end
 

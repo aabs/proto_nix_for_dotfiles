@@ -1,1 +1,0 @@
-/mnt/d/Synchronised/active_personal/Projects/by-technology/shell/prototypes/atomic_linkage/dotsv1/script.v1.sh
