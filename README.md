@@ -13,7 +13,13 @@ Features:
 - Allows implementation in folders other than `$HOME`
 - Scans deployment source directory for symlinks to attach, safely preserving any matching originals
 
-The functionality prototyped here will be implemented in [fishdots](http://github.com/aabs/fishdots), but you can adapt it for you own uses too.  To use it, you have two ways to use it. The first is incremental and fine grained:
+The functionality prototyped here will be implemented in [fishdots](http://github.com/aabs/fishdots), but you can adapt it for you own uses too.  
+
+## How to use it
+
+The only pre-requisite is you must have [fish shell](https://fishshell.com/) installed. But then, who in their right mind wouldn't?
+
+There are two ways to use it. The first is flexible, incremental and fine grained:
 
 ```fish
 set -l new_gen (create_new_gen)
@@ -25,7 +31,7 @@ switch_default_to_new_generation $new_gen
 `create_new_gen` creates a new generation directory under `$GEN_ROOT` (something that can be overridden to target something other than `$HOME/gens'` if need be.
 `stage_link_to_file_in_index` establishes a link in the new index. `script.v1.sh` will be indirectly linked to `script.sh` in the new generation directory.  All staged links are pending till you call `switch_default_to_new_generation` which redirects `default` to point to the new generation folder.  
 
-The second way to stage files as part of a new generation is to scan for symlink files:
+The second way to stage files as part of a new generation is to scan for symlink files. This has conventions that must be followed, but can scale easier than explicit staging commands:
 
 ```fish
 set -l new_gen (create_new_gen)
