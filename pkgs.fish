@@ -51,6 +51,10 @@ function get_default_path
     echo "$GEN_ROOT/default"
 end
 
+function get_origin_path
+    echo "$GEN_ROOT/origin"
+end
+
 function ensure_default_link -d "create a default dummy link for default"
     set -l def_path (get_default_path)
     if not test -e $def_path
@@ -58,14 +62,16 @@ function ensure_default_link -d "create a default dummy link for default"
     end
 end
 
+function ensure_origin_generation -d "create a default dummy link for default"
+    set -l op (get_origin_path)
+    if not test -e $op
+        mkdir -p $op
+    end
+end
+
 function get_current_generation_from_target_of_default_link
     ensure_default_link
     readlink -m (get_default_path) | xargs basename | string split "-" | head -2 | tail -1
-end
-
-# search below for files matching a pattern and create a new generation from them transforming them to match dotfile format
-function stage_matching_files_as_dotfiles -d "create a generation of new dotfiles for all matching sub-files"
-    set matching_files (find . -name "*.symlink")
 end
 
 function rollback_gen -d "switch to the previous generation"
@@ -83,6 +89,60 @@ function rollforward_gen -d "switch to the following generation"
         switch_default_to_new_generation $new_gen
     end
 end
+
+function find_all_candidate_symlinks -a root
+    find $root -name "*.symlink" ! -type l
+end
+
+function stage_dotfile -a dotfile generation home_path -d "setup a dotfile link"
+    ensure_default_link
+    set -l x (basename -s .symlink $dotfile)
+    set -l new_home_dotfile "$home_path/.$x"
+    set -l target_location (form_index_path $generation)
+    echo "linking $dotfile to gen $generation as $target_location/.$x"
+    link $dotfile "$target_location/.$x"
+
+    # first, if the original dotfile exists and is a regular file or directory, then first make it indirect
+    if test -f $new_home_dotfile -o -d $new_home_dotfile
+        make_original_file_indirect $dotfile $home_path
+    end
+
+    # since the original is now either non-existent or safely indirect, we can blow away anything in the home dir
+    rm -f $new_home_dotfile
+    set -l def_path (get_default_path)
+    link "$def_path/.$x" $new_home_dotfile
+end
+
+# search below for files matching a pattern and create a new generation from them transforming them to match dotfile format
+function stage_matching_files_as_dotfiles -a root gen -d "create a generation of new dotfiles for all matching sub-files"
+    set -l matching_files (find_all_candidate_symlinks "$root")
+    for sl in $matching_files
+        stage_dotfile $sl $gen "$PWD/home"
+    end
+end
+
+function make_original_file_indirect -a dotfile home_path -d "description"
+    ensure_origin_generation
+    set -l origin_gen (get_origin_path)
+    set -l x (basename -s .symlink $dotfile)
+    set -l original_dotfile "$home_path/.$x"
+    if test -e $original_dotfile -a ! -L $original_dotfile
+        echo "moving $original_dotfile => $origin_gen/.$x"
+        mv $original_dotfile "$origin_gen/.$x"
+        link "$origin_gen/.$x" $original_dotfile
+    else
+        echo "not moving $original_dotfile => $origin_gen/.$x"
+    end
+end
+
+function make_matching_originals_indirect -a root -d "move original symlink targets into a special area for preservation"
+    set -l matching_files (find_all_candidate_symlinks "$root")
+    for sl in $matching_files
+        make_original_file_indirect $sl "$PWD/home"
+    end
+    
+end
+
 # THE PLAN
 # 0. create current generation link  generationC
 # 0. define links in root in terms of generationC
@@ -90,3 +150,6 @@ end
 # 2. Create links in generationX to all files in origin dir
 # 4. redirect generationC to be a link to generationX
 # 5. now all links defined as $generationC/blah.ext should point to $generationX/blah.ext which is in turn a link to $origin/blah.ext
+
+
+# P1: final rollback destination is the origin, after which rollbacks stop changing things
