@@ -1,6 +1,6 @@
 # Nix for dotfiles
 
-**DISCLAIMER: ** *This approach to managing files is nowhere near as comprehensive as [Nix](https://nixos.org/nix/). It is meerly an attempt to understand how Nix generations work and to provide some of that goodness in my [fishdots](http://github.com/aabs/fishdots) system, so I can deploy it safely in environments where [NixOS](https://nixos.org/) or [Nix](https://nixos.org/nix/) are unavailable*
+**DISCLAIMER:** *This approach to managing files is nowhere near as comprehensive as [Nix](https://nixos.org/nix/). It is meerly an attempt to understand how Nix generations work and to provide some of that goodness in my [fishdots](http://github.com/aabs/fishdots) system, so I can deploy it safely in environments where [NixOS](https://nixos.org/) or [Nix](https://nixos.org/nix/) are unavailable*
 
 
 This repo contains a little test to replicate part of the operation of nix for use in dotfiles (uses fish shell).
