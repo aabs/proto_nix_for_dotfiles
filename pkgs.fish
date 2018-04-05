@@ -101,6 +101,11 @@ function rollback_gen -d "switch to the previous generation"
 end
 
 function rollforward_gen -d "switch to the following generation"
+    if test (readlink (get_default_path)) = (get_origin_path)
+        if test -e (form_index_path 1)
+            switch_default_to_new_generation 1
+        end
+    end
     set -l cur_gen (get_current_gen)
     set -l new_gen (math $cur_gen + 1)
     if test -e (form_index_path $new_gen)
