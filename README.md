@@ -39,7 +39,7 @@ stage_matching_files_as_dotfiles "$PWD/dotsv1" $new_gen "$PWD/home"
 switch_default_to_new_generation $new_gen
 ```
 
-This is simpler, but only works for literal dot files (e.g. like `.bashrc` or `.vimrc`).  It works by scanning some source directory for any files or folders ending with the suffix `.symlink`. These files are stripped of the suffix, and get a dot appended to their basename. For instance `mysource/directory/bashrc.symlink` becomes `generation-x/.bashrc`.  This is great if you havea traditional dotfiles system where you want to provide new instances of all matching symlinks, but you don't want to clobber any other dotfiles or symlinks in your home folder.
+This is simpler, but only works for literal dot files (e.g. like `.bashrc` or `.vimrc`).  It works by scanning some source directory for any files or folders ending with the suffix `.symlink`. These files are stripped of the suffix, and get a dot prepended to their basename. For instance `mysource/directory/bashrc.symlink` becomes `generation-x/.bashrc`.  This is great if you have a traditional dotfiles system where you want to provide new instances of all matching symlinks, but you don't want to clobber any other dotfiles or symlinks in your home folder.
 
 ## Making dotfiles indirect
 
